@@ -130,8 +130,10 @@
 
     .title-block {
       min-width: 0;
+      width: 100%;
       display: flex;
       align-items: baseline;
+      justify-content: space-between;
       gap: clamp(18px, 3vw, 34px);
     }
 
@@ -147,7 +149,7 @@
       height: 40px;
       display: inline-flex;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: flex-end;
       padding: 0 2px;
       font-size: clamp(1.65rem, 2.05vw, 2.18rem);
       font-weight: 850;
@@ -159,7 +161,7 @@
       color: var(--ink);
       white-space: nowrap;
       min-width: 158px;
-      text-align: left;
+      text-align: right;
     }
 
     .controls {
