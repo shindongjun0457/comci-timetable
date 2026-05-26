@@ -31,7 +31,8 @@ const state = {
   updatedAt: null,
   noticeEditing: false,
   noticeText: "",
-  noticeLoading: false
+  noticeLoading: false,
+  timetableSignature: ""
 };
 
 const $ = (id) => document.getElementById(id);
@@ -120,6 +121,35 @@ async function fetchMeal(dateValue) {
   } catch (err) {
     throw new Error("급식 API 응답을 JSON으로 해석하지 못했습니다.\n" + text.slice(0, 600));
   }
+}
+
+function makeTimetableSignature(data) {
+  // 화면 표시와 관련된 원본 시간표 데이터만 비교합니다.
+  return JSON.stringify({
+    자료147: data?.["자료147"] || null,
+    자료481: data?.["자료481"] || null,
+    자료492: data?.["자료492"] || null,
+    자료446: data?.["자료446"] || null,
+    자료244: data?.["자료244"] || null
+  });
+}
+
+async function refreshTimetableOnly({ force = false, showLoading = false } = {}) {
+  clearError();
+  if (showLoading) setLoading();
+
+  const timetable = await fetchTimetable(state.date);
+  const nextSignature = makeTimetableSignature(timetable);
+  const changed = force || !state.timetableSignature || nextSignature !== state.timetableSignature;
+
+  if (changed) {
+    state.data = timetable;
+    state.timetableSignature = nextSignature;
+    state.updatedAt = new Date();
+    render();
+  }
+
+  return changed;
 }
 
 function decodeLessonCode(value, data) {
@@ -282,26 +312,53 @@ async function loadMeal() {
   }
 }
 
-async function loadTimetable() {
+async function loadTimetable({ includeMeal = true, force = true, showLoading = true } = {}) {
   clearError();
-  setLoading();
+  if (showLoading) setLoading();
   $("reloadBtn").disabled = true;
 
   try {
     setStatus(formatDateKST(state.date), "내 사이트 API를 통해 컴시간 서버에 연결 중입니다.", "연결 중");
-    const [timetable] = await Promise.all([
-      fetchTimetable(state.date),
-      loadMeal()
-    ]);
-    state.data = timetable;
-    state.updatedAt = new Date();
-    render();
+
+    if (includeMeal) {
+      await Promise.all([
+        refreshTimetableOnly({ force, showLoading: false }),
+        loadMeal()
+      ]);
+    } else {
+      await refreshTimetableOnly({ force, showLoading: false });
+    }
   } catch (err) {
     console.error(err);
     showError("시간표를 불러오지 못했습니다.\n" + (err?.message || err));
     setStatus(formatDateKST(state.date), "시간표 로딩 실패", "오류");
   } finally {
     $("reloadBtn").disabled = false;
+  }
+}
+
+async function refreshAllManually() {
+  clearError();
+  await Promise.all([
+    loadTimetable({ includeMeal: true, force: true, showLoading: true }),
+    loadNotice()
+  ]);
+}
+
+async function checkDateHourly() {
+  const today = toDateInputValue(getKstDate());
+  if (today !== state.date) {
+    state.date = today;
+    $("dateInput").value = today;
+    await loadTimetable({ includeMeal: true, force: true, showLoading: false });
+  }
+}
+
+async function checkTimetableEveryFiveMinutes() {
+  try {
+    await loadTimetable({ includeMeal: false, force: false, showLoading: false });
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -398,11 +455,10 @@ document.querySelectorAll(".grade-btn").forEach((button) => {
 
 $("dateInput").addEventListener("change", async (e) => {
   state.date = e.target.value;
-  await loadTimetable();
+  await loadTimetable({ includeMeal: true, force: true, showLoading: true });
 });
 
-
-$("reloadBtn").addEventListener("click", loadTimetable);
+$("reloadBtn").addEventListener("click", refreshAllManually);
 
 $("noticeEditBtn").addEventListener("click", () => {
   state.noticeEditing = !state.noticeEditing;
@@ -460,5 +516,7 @@ $("noticeInput").addEventListener("keydown", async (e) => {
   await loadNotice();
   updateClock();
   setInterval(updateClock, 1000);
-  await loadTimetable();
+  setInterval(checkDateHourly, 60 * 60 * 1000);
+  setInterval(checkTimetableEveryFiveMinutes, 5 * 60 * 1000);
+  await loadTimetable({ includeMeal: true, force: true, showLoading: true });
 })();

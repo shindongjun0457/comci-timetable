@@ -6,6 +6,7 @@ Cloudflare Pages + Pages Functions 구조입니다.
 
 ```txt
 index.html
+script.js
 functions/
   api/
     timetable.js
@@ -20,12 +21,23 @@ README.md
 - `/api/meal?date=YYYY-MM-DD`: 나이스 급식식단정보 API에서 오현중학교 급식 메뉴를 가져옵니다.
 - `/api/notice?grade=1`: Cloudflare KV에서 학년별 공지사항을 가져오거나 저장합니다.
 
-공지사항은 이제 `localStorage`가 아니라 Cloudflare KV에 학년별로 저장됩니다.
+공지사항은 `localStorage`가 아니라 Cloudflare KV에 학년별로 저장됩니다.
 
 ```txt
 notice:grade:1
 notice:grade:2
 notice:grade:3
+```
+
+## 자동 갱신 정책
+
+```txt
+시계: 1초마다 갱신
+날짜 체크: 1시간마다
+시간표 확인: 5분마다 백그라운드 조회 후 변경이 있을 때만 화면 갱신
+급식: 날짜가 바뀔 때 갱신
+공지사항: 학년 변경 시 갱신
+수동 새로고침: 시간표 + 급식 + 공지사항 모두 갱신
 ```
 
 ## Cloudflare Pages 설정
@@ -59,7 +71,7 @@ Environment: Production
 Cloudflare에서 KV 저장소를 하나 만듭니다.
 
 ```txt
-Workers & Pages
+Storage & databases
 → KV
 → Create namespace
 ```
@@ -67,7 +79,7 @@ Workers & Pages
 추천 이름:
 
 ```txt
-ohyun_timetable_notices
+comci-notices
 ```
 
 그다음 Pages 프로젝트에 KV를 연결합니다.
@@ -76,7 +88,7 @@ ohyun_timetable_notices
 Workers & Pages
 → comci-timetable
 → Settings
-→ Functions
+→ Functions 또는 Bindings
 → KV namespace bindings
 → Add binding
 ```
@@ -85,32 +97,11 @@ Workers & Pages
 
 ```txt
 Variable name: NOTICES
-KV namespace: ohyun_timetable_notices
+KV namespace: comci-notices
 Environment: Production
 ```
 
 `Variable name`은 반드시 `NOTICES`로 해야 합니다.
-
-## 공지사항 저장 비밀번호 설정
-
-공지사항 저장/비우기를 아무나 하지 못하게 하려면 Secret을 하나 더 추가합니다.
-
-```txt
-Workers & Pages
-→ comci-timetable
-→ Settings
-→ Variables and Secrets
-→ Add variable
-```
-
-```txt
-Variable name: NOTICE_ADMIN_KEY
-Type: Secret
-Value: 원하는 저장 비밀번호
-Environment: Production
-```
-
-이 값을 설정하면 화면에서 공지사항을 저장할 때 비밀번호 입력창이 뜹니다.
 
 ## 다시 배포
 
@@ -139,9 +130,12 @@ https://도메인/api/notice?grade=1
 {"ok":true,"grade":"1","content":""}
 ```
 
-## v21 변경
+## v24 변경
 
-- 공지사항 저장 방식을 브라우저 localStorage에서 Cloudflare KV로 변경했습니다.
-- 공지사항을 1학년, 2학년, 3학년별로 웹에 저장합니다.
-- 저장/비우기는 비밀번호 없이 바로 처리됩니다.
-- 공지사항 수정 입력창의 예시 문구를 삭제했습니다.
+- 시계는 1초마다 갱신됩니다.
+- 날짜는 1시간마다 확인하고, 날짜가 바뀌면 시간표와 급식을 다시 불러옵니다.
+- 시간표는 5분마다 백그라운드로 확인하고, 변경이 있을 때만 화면을 갱신합니다.
+- 급식은 날짜 변경 시 갱신됩니다.
+- 공지사항은 학년 변경 시 갱신됩니다.
+- 수동 새로고침은 시간표, 급식, 공지사항을 모두 갱신합니다.
+- 공지사항 저장/비우기는 비밀번호 없이 바로 처리됩니다.
