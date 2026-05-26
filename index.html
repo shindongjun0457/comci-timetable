@@ -1001,37 +1001,16 @@ async function loadNotice() {
   }
 }
 
-function getNoticeAdminKey() {
-  const cached = sessionStorage.getItem("ohyun-notice-admin-key") || "";
-  if (cached) return cached;
-
-  const input = prompt("공지사항 저장 비밀번호를 입력하세요.");
-  if (!input) return "";
-
-  sessionStorage.setItem("ohyun-notice-admin-key", input);
-  return input;
-}
-
 async function saveNotice(value) {
-  const adminKey = getNoticeAdminKey();
-  if (!adminKey) return false;
-
   const res = await fetch(`/api/notice?grade=${encodeURIComponent(state.grade)}`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "X-Notice-Key": adminKey
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({ content: value })
   });
 
   const text = await res.text();
-
-  if (res.status === 401 || res.status === 403) {
-    sessionStorage.removeItem("ohyun-notice-admin-key");
-    alert("공지사항 저장 비밀번호가 맞지 않습니다.");
-    return false;
-  }
 
   if (!res.ok) throw new Error(`공지사항 저장 오류 ${res.status}\n${text.slice(0, 400)}`);
 

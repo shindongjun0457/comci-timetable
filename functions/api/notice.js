@@ -22,15 +22,6 @@ function getNoticeKey(grade) {
   return `notice:grade:${grade}`;
 }
 
-function isAuthorized(request, env) {
-  const expected = env.NOTICE_ADMIN_KEY;
-
-  if (!expected) return true;
-
-  const supplied = request.headers.get("X-Notice-Key") || "";
-  return supplied === expected;
-}
-
 export async function onRequestGet(context) {
   const grade = getGrade(context.request);
   if (!grade) return json({ ok: false, message: "grade는 1, 2, 3 중 하나여야 합니다." }, 400);
@@ -57,9 +48,6 @@ export async function onRequestPost(context) {
     return json({ ok: false, message: "Cloudflare KV 바인딩 NOTICES가 설정되지 않았습니다." }, 500);
   }
 
-  if (!isAuthorized(context.request, context.env)) {
-    return json({ ok: false, message: "공지사항 저장 권한이 없습니다." }, 401);
-  }
 
   let body;
   try {
