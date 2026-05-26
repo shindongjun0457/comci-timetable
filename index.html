@@ -43,7 +43,7 @@
 
     .top {
       display: grid;
-      grid-template-columns: minmax(0, 0.88fr) 680px;
+      grid-template-columns: minmax(0, 1fr) 620px;
       align-items: center;
       gap: 16px;
       margin-bottom: 16px;
@@ -62,7 +62,7 @@
       align-items: center;
       justify-content: flex-start;
       padding: 0 2px;
-      font-size: clamp(1.65rem, 2vw, 2.28rem);
+      font-size: clamp(1.7rem, 2.05vw, 2.18rem);
       font-weight: 850;
       letter-spacing: -0.055em;
       line-height: 1;
@@ -71,7 +71,7 @@
       font-feature-settings: "tnum" 1, "ss01" 1;
       color: var(--ink);
       white-space: nowrap;
-      min-width: 176px;
+      min-width: 160px;
       text-align: left;
     }
 
@@ -83,10 +83,10 @@
       justify-self: stretch;
       width: 100%;
       display: grid;
-      grid-template-columns: 176px 152px minmax(178px, 1fr) 92px;
+      grid-template-columns: 160px 146px minmax(190px, 1fr) 92px;
       align-items: center;
       justify-content: stretch;
-      gap: 8px;
+      gap: 6px;
       min-width: 0;
     }
 
@@ -226,9 +226,10 @@
 
     .main-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 600px;
+      grid-template-columns: minmax(0, 1fr) 620px;
       gap: 16px;
       align-items: stretch;
+      min-height: calc(100dvh - 128px);
     }
 
     .left-panel, .side-panel {
@@ -323,7 +324,7 @@
     tr:last-child th, tr:last-child td { border-bottom: 0; }
 
     td {
-      height: clamp(58px, 7.4vh, 82px);
+      height: clamp(66px, 8.4vh, 96px);
       background: white;
     }
 
@@ -338,7 +339,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(1.12rem, 1.85vw, 1.52rem);
+      font-size: clamp(1.28rem, 2.05vw, 1.78rem);
       font-weight: 900;
       letter-spacing: -0.04em;
       word-break: keep-all;
@@ -355,7 +356,7 @@
 
     .side-panel {
       display: grid;
-      grid-template-rows: minmax(260px, 0.78fr) minmax(310px, 1.22fr);
+      grid-template-rows: minmax(305px, 0.92fr) minmax(330px, 1.08fr);
       gap: 14px;
       height: 100%;
     }
@@ -392,7 +393,7 @@
 
     .notice-view {
       flex: 1;
-      min-height: 150px;
+      min-height: 190px;
       border-radius: 16px;
       background: #f8fafc;
       border: 1px solid var(--line);
@@ -413,7 +414,7 @@
     textarea {
       width: 100%;
       flex: 1;
-      min-height: 150px;
+      min-height: 190px;
       padding: 14px;
       resize: vertical;
       line-height: 1.5;
@@ -451,7 +452,7 @@
       background: #f8fafc;
       border: 1px solid var(--line);
       padding: 14px 16px;
-      font-size: clamp(1.08rem, 1.22vw, 1.28rem);
+      font-size: clamp(1.18rem, 1.36vw, 1.42rem);
       font-weight: 850;
       letter-spacing: -0.03em;
       line-height: 1.5;
@@ -475,7 +476,7 @@
       display: inline;
       margin-left: 8px;
       color: var(--muted);
-      font-size: 0.86rem;
+      font-size: 0.94rem;
       font-weight: 800;
       line-height: 1.35;
       letter-spacing: -0.02em;
@@ -539,7 +540,7 @@
       .top, .main-grid { grid-template-columns: 1fr; }
       .controls {
         justify-self: stretch;
-        grid-template-columns: 176px 152px minmax(178px, 1fr) 92px;
+        grid-template-columns: 160px 146px minmax(190px, 1fr) 92px;
       }
       .side-panel {
         grid-template-columns: repeat(2, minmax(0, 1fr));
