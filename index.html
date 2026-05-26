@@ -355,7 +355,7 @@
 
     .side-panel {
       display: grid;
-      grid-template-rows: minmax(230px, 0.78fr) minmax(330px, 1.22fr);
+      grid-template-rows: minmax(185px, 0.58fr) minmax(370px, 1.42fr);
       gap: 14px;
       height: 100%;
     }
@@ -392,12 +392,12 @@
 
     .notice-view {
       flex: 1;
-      min-height: 140px;
+      min-height: 96px;
       border-radius: 16px;
       background: #f8fafc;
       border: 1px solid var(--line);
       padding: 16px;
-      font-size: clamp(1.08rem, 1.35vw, 1.34rem);
+      font-size: clamp(1rem, 1.18vw, 1.22rem);
       font-weight: 900;
       letter-spacing: -0.04em;
       line-height: 1.45;
@@ -413,7 +413,7 @@
     textarea {
       width: 100%;
       flex: 1;
-      min-height: 140px;
+      min-height: 96px;
       padding: 14px;
       resize: vertical;
       line-height: 1.5;
@@ -468,17 +468,18 @@
     }
 
     .meal-name {
-      display: block;
+      display: inline;
     }
 
     .allergen-names {
-      display: block;
-      margin-top: 2px;
+      display: inline;
+      margin-left: 8px;
       color: var(--muted);
-      font-size: 0.76rem;
+      font-size: 0.78rem;
       font-weight: 800;
       line-height: 1.35;
       letter-spacing: -0.02em;
+      white-space: normal;
     }
 
     .allergen-legend {
@@ -882,7 +883,7 @@ function renderMeal(data) {
     return `
       <div class="meal-line">
         <span class="meal-name">${escapeHtml(name)}</span>
-        ${allergenNames ? `<span class="allergen-names">${escapeHtml(allergenNames)}</span>` : ""}
+        ${allergenNames ? `<span class="allergen-names">(${escapeHtml(allergenNames)})</span>` : ""}
       </div>
     `;
   }).join("");
