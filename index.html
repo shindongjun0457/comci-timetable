@@ -980,8 +980,7 @@ async function loadTimetable() {
 async function fetchNotice(grade) {
   const res = await fetch(`/api/notice?grade=${encodeURIComponent(grade)}`, { cache: "no-store" });
   const text = await res.text();
-  if (!res.ok) throw new Error(`공지사항 API 오류 ${res.status}
-${text.slice(0, 400)}`);
+  if (!res.ok) throw new Error(`공지사항 API 오류 ${res.status}\n${text.slice(0, 400)}`);
   return JSON.parse(text);
 }
 
@@ -995,8 +994,7 @@ async function loadNotice() {
   } catch (error) {
     console.error(error);
     state.noticeText = "";
-    showError("공지사항을 불러오지 못했습니다.
-" + (error?.message || error));
+    showError("공지사항을 불러오지 못했습니다.\n" + (error?.message || error));
   } finally {
     state.noticeLoading = false;
     renderNotice();
@@ -1035,8 +1033,7 @@ async function saveNotice(value) {
     return false;
   }
 
-  if (!res.ok) throw new Error(`공지사항 저장 오류 ${res.status}
-${text.slice(0, 400)}`);
+  if (!res.ok) throw new Error(`공지사항 저장 오류 ${res.status}\n${text.slice(0, 400)}`);
 
   const data = JSON.parse(text);
   state.noticeText = data?.content || "";
@@ -1114,8 +1111,7 @@ $("noticeSaveBtn").addEventListener("click", async () => {
     }
   } catch (error) {
     console.error(error);
-    showError("공지사항을 저장하지 못했습니다.
-" + (error?.message || error));
+    showError("공지사항을 저장하지 못했습니다.\n" + (error?.message || error));
   }
 });
 
@@ -1128,8 +1124,7 @@ $("noticeClearBtn").addEventListener("click", async () => {
     }
   } catch (error) {
     console.error(error);
-    showError("공지사항을 비우지 못했습니다.
-" + (error?.message || error));
+    showError("공지사항을 비우지 못했습니다.\n" + (error?.message || error));
   }
 });
 
@@ -1143,8 +1138,7 @@ $("noticeInput").addEventListener("keydown", async (e) => {
       }
     } catch (error) {
       console.error(error);
-      showError("공지사항을 저장하지 못했습니다.
-" + (error?.message || error));
+      showError("공지사항을 저장하지 못했습니다.\n" + (error?.message || error));
     }
   }
 });
