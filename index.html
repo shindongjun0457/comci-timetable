@@ -803,36 +803,35 @@ const state = {
 
 const $ = (id) => document.getElementById(id);
 const THEME_STORAGE_KEY = "comci-dashboard-theme";
-const systemThemeQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+const DEFAULT_THEME = "dark";
 
-function getSystemTheme() {
-  return systemThemeQuery?.matches ? "dark" : "light";
+function getDefaultGradeFromHost() {
+  const host = window.location.hostname.toLowerCase();
+
+  if (host === "tt1.djcom.kr" || host.startsWith("tt1.")) return 1;
+  if (host === "tt2.djcom.kr" || host.startsWith("tt2.")) return 2;
+  if (host === "tt3.djcom.kr" || host.startsWith("tt3.")) return 3;
+
+  return 1;
 }
 
 function getStoredTheme() {
   const value = localStorage.getItem(THEME_STORAGE_KEY);
-  return value === "light" || value === "dark" ? value : "auto";
+  return value === "light" || value === "dark" ? value : DEFAULT_THEME;
 }
 
 function getEffectiveTheme() {
-  const stored = getStoredTheme();
-  return stored === "auto" ? getSystemTheme() : stored;
+  return getStoredTheme();
 }
 
 function applyTheme() {
-  const stored = getStoredTheme();
   const effective = getEffectiveTheme();
-
-  if (stored === "auto") {
-    document.documentElement.removeAttribute("data-theme");
-  } else {
-    document.documentElement.setAttribute("data-theme", stored);
-  }
+  document.documentElement.setAttribute("data-theme", effective);
 
   const button = $("themeBtn");
   if (button) {
     button.textContent = effective === "dark" ? "☀️" : "🌙";
-    button.title = stored === "auto" ? "시스템 모드 사용 중. 클릭하면 수동 전환됩니다." : `${stored === "dark" ? "다크" : "라이트"} 모드 고정 중. 클릭하면 전환됩니다.`;
+    button.title = `${effective === "dark" ? "다크" : "라이트"} 모드 사용 중. 클릭하면 전환됩니다.`;
     button.setAttribute("aria-label", button.title);
   }
 }
@@ -1329,7 +1328,7 @@ $("noticeInput").addEventListener("keydown", async (e) => {
 
 (async function init() {
   applyTheme();
-  state.grade = 1;
+  state.grade = getDefaultGradeFromHost();
   state.date = toDateInputValue(getKstDate());
   updateGradeButtons();
   $("dateInput").value = state.date;
