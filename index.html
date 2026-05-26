@@ -423,15 +423,19 @@
 
     .notice-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      margin-top: 10px;
+      grid-template-columns: repeat(3, auto);
+      gap: 6px;
+      margin-left: auto;
+      flex: 0 0 auto;
     }
 
     .notice-actions button {
-      height: 38px;
-      padding: 0 8px;
-      font-size: 0.86rem;
+      height: 32px;
+      min-width: 54px;
+      padding: 0 10px;
+      font-size: 0.78rem;
+      border-radius: 999px;
+      box-shadow: none;
     }
 
     .local-note {
@@ -446,13 +450,45 @@
       border-radius: 16px;
       background: #f8fafc;
       border: 1px solid var(--line);
-      padding: 16px;
-      font-size: clamp(1rem, 1.18vw, 1.18rem);
+      padding: 14px 16px;
+      font-size: clamp(1rem, 1.12vw, 1.15rem);
       font-weight: 850;
       letter-spacing: -0.03em;
-      line-height: 1.55;
+      line-height: 1.5;
       word-break: keep-all;
-      white-space: pre-line;
+    }
+
+    .meal-line {
+      padding: 4px 0 6px;
+      border-bottom: 1px dashed rgba(209, 213, 219, 0.8);
+    }
+
+    .meal-line:last-child {
+      border-bottom: 0;
+    }
+
+    .meal-name {
+      display: block;
+    }
+
+    .allergen-names {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+    }
+
+    .allergen-legend {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #d1d5db;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.45;
+      font-weight: 700;
     }
 
     .meal-empty, .loading {
@@ -530,7 +566,7 @@
       }
       .badge { white-space: normal; }
       .side-panel { grid-template-columns: 1fr; }
-      .notice-actions { grid-template-columns: 1fr; }
+      .notice-actions { grid-template-columns: repeat(3, auto); }
     }
   </style>
 </head>
@@ -580,15 +616,14 @@
         <section class="side-card">
           <div class="side-title">
             <h2>공지사항</h2>
-            <span class="mini-badge">이 컴퓨터에만 저장</span>
+            <div class="notice-actions">
+              <button id="noticeEditBtn" class="secondary" type="button">수정</button>
+              <button id="noticeSaveBtn" type="button">저장</button>
+              <button id="noticeClearBtn" class="ghost" type="button">비우기</button>
+            </div>
           </div>
           <div id="noticeView" class="notice-view notice-placeholder">공지사항을 입력하세요.</div>
           <textarea id="noticeInput" aria-label="공지사항 입력" placeholder="예: 오늘 6교시 후 학년 협의회가 있습니다."></textarea>
-          <div class="notice-actions">
-            <button id="noticeEditBtn" class="secondary" type="button">수정</button>
-            <button id="noticeSaveBtn" type="button">저장</button>
-            <button id="noticeClearBtn" class="ghost" type="button">비우기</button>
-          </div>
         </section>
 
         <section class="side-card">
@@ -611,6 +646,27 @@ const CLASSES_PER_GRADE = 7;
 const PERIODS = 7;
 const WEEKDAY_KO = ["일", "월", "화", "수", "목", "금", "토"];
 const LOCAL_NOTICE_KEY = "ohyun-timetable-local-notice-v1";
+const ALLERGEN_MAP = {
+  "1": "난류",
+  "2": "우유",
+  "3": "메밀",
+  "4": "땅콩",
+  "5": "대두",
+  "6": "밀",
+  "7": "고등어",
+  "8": "게",
+  "9": "새우",
+  "10": "돼지고기",
+  "11": "복숭아",
+  "12": "토마토",
+  "13": "아황산류",
+  "14": "호두",
+  "15": "닭고기",
+  "16": "쇠고기",
+  "17": "오징어",
+  "18": "조개류",
+  "19": "잣"
+};
 
 const state = {
   grade: 1,
@@ -815,7 +871,21 @@ function renderMeal(data) {
 
   $("mealBadge").textContent = data.mealName || "중식";
   $("mealBox").className = "meal-menu-card";
-  $("mealBox").innerHTML = data.menu.map((item) => escapeHtml(item)).join("<br>");
+  $("mealBox").innerHTML = data.menu.map((item) => {
+    const name = typeof item === "string" ? item : item.name;
+    const allergens = Array.isArray(item?.allergens) ? item.allergens : [];
+    const allergenNames = allergens
+      .map((code) => ALLERGEN_MAP[String(code)] || String(code))
+      .filter(Boolean)
+      .join(" · ");
+
+    return `
+      <div class="meal-line">
+        <span class="meal-name">${escapeHtml(name)}</span>
+        ${allergenNames ? `<span class="allergen-names">${escapeHtml(allergenNames)}</span>` : ""}
+      </div>
+    `;
+  }).join("");
   $("mealMeta").textContent = data.calories ? `열량: ${data.calories}` : "";
 }
 
