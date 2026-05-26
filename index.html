@@ -43,7 +43,7 @@
 
     .top {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 600px;
+      grid-template-columns: minmax(0, 0.88fr) 680px;
       align-items: center;
       gap: 16px;
       margin-bottom: 16px;
@@ -71,7 +71,7 @@
       font-feature-settings: "tnum" 1, "ss01" 1;
       color: var(--ink);
       white-space: nowrap;
-      min-width: 126px;
+      min-width: 176px;
       text-align: left;
     }
 
@@ -83,7 +83,7 @@
       justify-self: stretch;
       width: 100%;
       display: grid;
-      grid-template-columns: 126px 152px minmax(178px, 1fr) 92px;
+      grid-template-columns: 176px 152px minmax(178px, 1fr) 92px;
       align-items: center;
       justify-content: stretch;
       gap: 8px;
@@ -451,7 +451,7 @@
       background: #f8fafc;
       border: 1px solid var(--line);
       padding: 14px 16px;
-      font-size: clamp(1rem, 1.12vw, 1.15rem);
+      font-size: clamp(1.08rem, 1.22vw, 1.28rem);
       font-weight: 850;
       letter-spacing: -0.03em;
       line-height: 1.5;
@@ -475,7 +475,7 @@
       display: inline;
       margin-left: 8px;
       color: var(--muted);
-      font-size: 0.78rem;
+      font-size: 0.86rem;
       font-weight: 800;
       line-height: 1.35;
       letter-spacing: -0.02em;
@@ -539,7 +539,7 @@
       .top, .main-grid { grid-template-columns: 1fr; }
       .controls {
         justify-self: stretch;
-        grid-template-columns: 126px 152px minmax(178px, 1fr) 92px;
+        grid-template-columns: 176px 152px minmax(178px, 1fr) 92px;
       }
       .side-panel {
         grid-template-columns: repeat(2, minmax(0, 1fr));
