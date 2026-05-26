@@ -63,6 +63,14 @@ function formatDateKST(value) {
   return `${y}년 ${m}월 ${d}일 (${w})`;
 }
 
+function formatTableTitleDate(value) {
+  const date = typeof value === "string" ? dateFromInput(value) : value;
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  const w = WEEKDAY_KO[date.getDay()];
+  return `${m}월 ${d}일(${w})`;
+}
+
 function addDays(date, days) {
   const copy = new Date(date);
   copy.setDate(copy.getDate() + days);
@@ -192,7 +200,7 @@ function render() {
 
   updateGradeButtons();
   $("dateInput").value = state.date;
-  $("tableTitle").textContent = `${grade}학년 시간표`;
+  $("tableTitle").textContent = `${formatTableTitleDate(state.date)} ${grade}학년 시간표`;
 
   if (!state.data) return;
 

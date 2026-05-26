@@ -3,16 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
   <title>오현중학교 시간표</title>
   <style>
     :root {
       --page-pad: clamp(10px, 1.4vh, 20px);
       --bg: #f5f7fb;
+      --page-start: #f8fafc;
       --panel: #ffffff;
+      --soft: #f8fafc;
+      --soft-2: #f9fafb;
       --ink: #111827;
+      --ink-subtle: #374151;
       --muted: #6b7280;
       --line: #e5e7eb;
       --blue: #2563eb;
+      --blue-ink: #1d4ed8;
       --blue-soft: #eff6ff;
       --changed: #eff6ff;
       --changed-line: #38bdf8;
@@ -20,7 +26,71 @@
       --green-ink: #047857;
       --amber-soft: #fffbeb;
       --amber-ink: #92400e;
+      --empty: #d1d5db;
+      --placeholder: #9ca3af;
+      --danger-bg: #fef2f2;
+      --danger-line: #fecaca;
+      --danger-ink: #991b1b;
+      --dash-line: rgba(209, 213, 219, 0.8);
       --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f172a;
+        --page-start: #111827;
+        --panel: #182235;
+        --soft: #111827;
+        --soft-2: #151f31;
+        --ink: #f8fafc;
+        --ink-subtle: #dbeafe;
+        --muted: #a8b3c7;
+        --line: #314159;
+        --blue: #38bdf8;
+        --blue-ink: #bae6fd;
+        --blue-soft: rgba(56, 189, 248, 0.14);
+        --changed: rgba(14, 165, 233, 0.16);
+        --changed-line: #7dd3fc;
+        --green-soft: rgba(16, 185, 129, 0.14);
+        --green-ink: #a7f3d0;
+        --amber-soft: rgba(245, 158, 11, 0.13);
+        --amber-ink: #fde68a;
+        --empty: #64748b;
+        --placeholder: #94a3b8;
+        --danger-bg: rgba(127, 29, 29, 0.26);
+        --danger-line: rgba(248, 113, 113, 0.45);
+        --danger-ink: #fecaca;
+        --dash-line: rgba(148, 163, 184, 0.35);
+        --shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0f172a;
+      --page-start: #111827;
+      --panel: #182235;
+      --soft: #111827;
+      --soft-2: #151f31;
+      --ink: #f8fafc;
+      --ink-subtle: #dbeafe;
+      --muted: #a8b3c7;
+      --line: #314159;
+      --blue: #38bdf8;
+      --blue-ink: #bae6fd;
+      --blue-soft: rgba(56, 189, 248, 0.14);
+      --changed: rgba(14, 165, 233, 0.16);
+      --changed-line: #7dd3fc;
+      --green-soft: rgba(16, 185, 129, 0.14);
+      --green-ink: #a7f3d0;
+      --amber-soft: rgba(245, 158, 11, 0.13);
+      --amber-ink: #fde68a;
+      --empty: #64748b;
+      --placeholder: #94a3b8;
+      --danger-bg: rgba(127, 29, 29, 0.26);
+      --danger-line: rgba(248, 113, 113, 0.45);
+      --danger-ink: #fecaca;
+      --dash-line: rgba(148, 163, 184, 0.35);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
     }
 
     * { box-sizing: border-box; }
@@ -32,7 +102,7 @@
       color: var(--ink);
       background:
         radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
-        linear-gradient(180deg, #f8fafc 0%, var(--bg) 100%);
+        linear-gradient(180deg, var(--page-start) 0%, var(--bg) 100%);
     }
 
     body {
@@ -92,7 +162,7 @@
       justify-self: stretch;
       width: 100%;
       display: grid;
-      grid-template-columns: 160px 146px minmax(190px, 1fr) 92px;
+      grid-template-columns: 150px 136px minmax(180px, 1fr) 44px 84px;
       align-items: center;
       justify-content: stretch;
       gap: 6px;
@@ -129,6 +199,19 @@
       padding-right: 10px;
     }
 
+
+    #themeBtn {
+      width: 100%;
+      min-width: 0;
+      padding: 0;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     button {
       cursor: pointer;
       background: var(--blue);
@@ -137,7 +220,7 @@
     }
 
     button.secondary {
-      background: white;
+      background: var(--panel);
       color: var(--ink);
       border-color: var(--line);
     }
@@ -149,7 +232,7 @@
       padding: 4px;
       border: 1px solid var(--line);
       border-radius: 14px;
-      background: white;
+      background: var(--panel);
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
       width: 100%;
       min-width: 0;
@@ -173,7 +256,7 @@
     }
 
     button.ghost {
-      background: #f8fafc;
+      background: var(--soft);
       color: var(--muted);
       border-color: var(--line);
     }
@@ -227,7 +310,7 @@
       white-space: nowrap;
       border-radius: 999px;
       background: var(--blue-soft);
-      color: #1d4ed8;
+      color: var(--blue-ink);
       padding: 8px 11px;
       font-weight: 900;
       font-size: 0.84rem;
@@ -274,7 +357,7 @@
       gap: 12px;
       padding: clamp(8px, 1.1vh, 14px) 16px;
       border-bottom: 1px solid var(--line);
-      background: #f8fafc;
+      background: var(--soft);
     }
 
     .table-head h2 {
@@ -311,7 +394,7 @@
       position: sticky;
       top: 0;
       z-index: 2;
-      background: #f8fafc;
+      background: var(--soft);
       border-bottom: 1px solid var(--line);
       height: clamp(38px, 5.4vh, 50px);
       font-size: clamp(1rem, 1.85vh, 1.18rem);
@@ -320,8 +403,8 @@
 
     tbody th {
       width: 82px;
-      background: #f9fafb;
-      color: #374151;
+      background: var(--soft-2);
+      color: var(--ink-subtle);
       font-weight: 900;
       border-right: 1px solid var(--line);
     }
@@ -338,7 +421,7 @@
 
     td {
       height: auto;
-      background: white;
+      background: var(--panel);
     }
 
     td.changed {
@@ -360,11 +443,11 @@
       line-height: 1.12;
     }
 
-    .class-head { background: #f8fafc; }
+    .class-head { background: var(--soft); }
     .period { font-size: clamp(1rem, 1.85vh, 1.16rem); }
 
     .empty {
-      color: #d1d5db;
+      color: var(--empty);
       font-weight: 700;
     }
 
@@ -412,7 +495,7 @@
       flex: 1;
       min-height: 0;
       border-radius: 16px;
-      background: #f8fafc;
+      background: var(--soft);
       border: 1px solid var(--line);
       padding: 16px;
       font-size: clamp(1rem, 1.18vw, 1.22rem);
@@ -425,7 +508,7 @@
     }
 
     .notice-placeholder {
-      color: #9ca3af;
+      color: var(--placeholder);
       font-weight: 700;
     }
 
@@ -469,7 +552,7 @@
       min-height: 0;
       overflow: hidden;
       border-radius: 16px;
-      background: #f8fafc;
+      background: var(--soft);
       border: 1px solid var(--line);
       padding: 14px 16px;
       font-size: var(--meal-font-size, clamp(1.18rem, 1.36vw, 1.42rem));
@@ -481,7 +564,7 @@
 
     .meal-line {
       padding: clamp(2px, 0.55vh, 4px) 0 clamp(3px, 0.65vh, 6px);
-      border-bottom: 1px dashed rgba(209, 213, 219, 0.8);
+      border-bottom: 1px dashed var(--dash-line);
     }
 
     .meal-line:last-child {
@@ -506,7 +589,7 @@
     .allergen-legend {
       margin-top: 8px;
       padding-top: 8px;
-      border-top: 1px dashed #d1d5db;
+      border-top: 1px dashed var(--dash-line);
       color: var(--muted);
       font-size: 0.72rem;
       line-height: 1.45;
@@ -531,9 +614,9 @@
 
     .error {
       margin-top: 14px;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      color: #991b1b;
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-line);
+      color: var(--danger-ink);
       border-radius: 16px;
       padding: 14px 16px;
       line-height: 1.6;
@@ -566,7 +649,7 @@
       .top, .main-grid { grid-template-columns: 1fr; }
       .controls {
         justify-self: stretch;
-        grid-template-columns: 160px 146px minmax(190px, 1fr) 92px;
+        grid-template-columns: 150px 136px minmax(180px, 1fr) 44px 84px;
       }
       .side-panel {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -616,6 +699,7 @@
           <button class="grade-btn" type="button" data-grade="2">2학년</button>
           <button class="grade-btn" type="button" data-grade="3">3학년</button>
         </div>
+        <button id="themeBtn" class="secondary" type="button" aria-label="화면 모드 전환" title="화면 모드 전환">🌙</button>
         <button id="reloadBtn" type="button">새로고침</button>
       </div>
     </header>
@@ -703,10 +787,51 @@ const state = {
   updatedAt: null,
   noticeEditing: false,
   noticeText: "",
-  noticeLoading: false
+  noticeLoading: false,
+  timetableSignature: ""
 };
 
 const $ = (id) => document.getElementById(id);
+const THEME_STORAGE_KEY = "comci-dashboard-theme";
+const systemThemeQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+function getSystemTheme() {
+  return systemThemeQuery?.matches ? "dark" : "light";
+}
+
+function getStoredTheme() {
+  const value = localStorage.getItem(THEME_STORAGE_KEY);
+  return value === "light" || value === "dark" ? value : "auto";
+}
+
+function getEffectiveTheme() {
+  const stored = getStoredTheme();
+  return stored === "auto" ? getSystemTheme() : stored;
+}
+
+function applyTheme() {
+  const stored = getStoredTheme();
+  const effective = getEffectiveTheme();
+
+  if (stored === "auto") {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", stored);
+  }
+
+  const button = $("themeBtn");
+  if (button) {
+    button.textContent = effective === "dark" ? "☀️" : "🌙";
+    button.title = stored === "auto" ? "시스템 모드 사용 중. 클릭하면 수동 전환됩니다." : `${stored === "dark" ? "다크" : "라이트"} 모드 고정 중. 클릭하면 전환됩니다.`;
+    button.setAttribute("aria-label", button.title);
+  }
+}
+
+function toggleThemeOverride() {
+  const next = getEffectiveTheme() === "dark" ? "light" : "dark";
+  localStorage.setItem(THEME_STORAGE_KEY, next);
+  applyTheme();
+}
 
 function getKstDate() {
   const now = new Date();
@@ -732,6 +857,14 @@ function formatDateKST(value) {
   const d = date.getDate();
   const w = WEEKDAY_KO[date.getDay()];
   return `${y}년 ${m}월 ${d}일 (${w})`;
+}
+
+function formatTableTitleDate(value) {
+  const date = typeof value === "string" ? dateFromInput(value) : value;
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  const w = WEEKDAY_KO[date.getDay()];
+  return `${m}월 ${d}일(${w})`;
 }
 
 function addDays(date, days) {
@@ -794,6 +927,16 @@ async function fetchMeal(dateValue) {
   }
 }
 
+function makeTimetableSignature(data) {
+  return JSON.stringify({
+    자료147: data?.["자료147"] || null,
+    자료481: data?.["자료481"] || null,
+    자료492: data?.["자료492"] || null,
+    자료446: data?.["자료446"] || null,
+    자료244: data?.["자료244"] || null
+  });
+}
+
 function decodeLessonCode(value, data) {
   if (value === undefined || value === null || value === 0 || value === "0") {
     return { subject: "", teacher: "", changed: false, raw: value };
@@ -834,7 +977,7 @@ function render() {
 
   updateGradeButtons();
   $("dateInput").value = state.date;
-  $("tableTitle").textContent = `${grade}학년 시간표`;
+  $("tableTitle").textContent = `${formatTableTitleDate(state.date)} ${grade}학년 시간표`;
 
   if (!state.data) return;
 
@@ -954,26 +1097,71 @@ async function loadMeal() {
   }
 }
 
-async function loadTimetable() {
+async function refreshTimetableOnly({ force = false, showLoading = false } = {}) {
   clearError();
-  setLoading();
+  if (showLoading) setLoading();
+
+  const timetable = await fetchTimetable(state.date);
+  const nextSignature = makeTimetableSignature(timetable);
+  const changed = force || !state.timetableSignature || nextSignature !== state.timetableSignature;
+
+  if (changed) {
+    state.data = timetable;
+    state.timetableSignature = nextSignature;
+    state.updatedAt = new Date();
+    render();
+  }
+
+  return changed;
+}
+
+async function loadTimetable({ includeMeal = true, force = true, showLoading = true } = {}) {
+  clearError();
+  if (showLoading) setLoading();
   $("reloadBtn").disabled = true;
 
   try {
     setStatus(formatDateKST(state.date), "내 사이트 API를 통해 컴시간 서버에 연결 중입니다.", "연결 중");
-    const [timetable] = await Promise.all([
-      fetchTimetable(state.date),
-      loadMeal()
-    ]);
-    state.data = timetable;
-    state.updatedAt = new Date();
-    render();
+
+    if (includeMeal) {
+      await Promise.all([
+        refreshTimetableOnly({ force, showLoading: false }),
+        loadMeal()
+      ]);
+    } else {
+      await refreshTimetableOnly({ force, showLoading: false });
+    }
   } catch (err) {
     console.error(err);
     showError("시간표를 불러오지 못했습니다.\n" + (err?.message || err));
     setStatus(formatDateKST(state.date), "시간표 로딩 실패", "오류");
   } finally {
     $("reloadBtn").disabled = false;
+  }
+}
+
+async function refreshAllManually() {
+  clearError();
+  await Promise.all([
+    loadTimetable({ includeMeal: true, force: true, showLoading: true }),
+    loadNotice()
+  ]);
+}
+
+async function checkDateHourly() {
+  const today = toDateInputValue(getKstDate());
+  if (today !== state.date) {
+    state.date = today;
+    $("dateInput").value = today;
+    await loadTimetable({ includeMeal: true, force: true, showLoading: false });
+  }
+}
+
+async function checkTimetableEveryFiveMinutes() {
+  try {
+    await loadTimetable({ includeMeal: false, force: false, showLoading: false });
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -1070,11 +1258,18 @@ document.querySelectorAll(".grade-btn").forEach((button) => {
 
 $("dateInput").addEventListener("change", async (e) => {
   state.date = e.target.value;
-  await loadTimetable();
+  await loadTimetable({ includeMeal: true, force: true, showLoading: true });
 });
 
+$("themeBtn").addEventListener("click", toggleThemeOverride);
 
-$("reloadBtn").addEventListener("click", loadTimetable);
+if (systemThemeQuery?.addEventListener) {
+  systemThemeQuery.addEventListener("change", () => {
+    if (getStoredTheme() === "auto") applyTheme();
+  });
+}
+
+$("reloadBtn").addEventListener("click", refreshAllManually);
 
 $("noticeEditBtn").addEventListener("click", () => {
   state.noticeEditing = !state.noticeEditing;
@@ -1123,6 +1318,7 @@ $("noticeInput").addEventListener("keydown", async (e) => {
 });
 
 (async function init() {
+  applyTheme();
   state.grade = 1;
   state.date = toDateInputValue(getKstDate());
   updateGradeButtons();
@@ -1132,7 +1328,9 @@ $("noticeInput").addEventListener("keydown", async (e) => {
   await loadNotice();
   updateClock();
   setInterval(updateClock, 1000);
-  await loadTimetable();
+  setInterval(checkDateHourly, 60 * 60 * 1000);
+  setInterval(checkTimetableEveryFiveMinutes, 5 * 60 * 1000);
+  await loadTimetable({ includeMeal: true, force: true, showLoading: true });
 })();
 </script>
 </body>
