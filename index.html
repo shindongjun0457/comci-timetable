@@ -43,9 +43,9 @@
 
     .top {
       display: grid;
-      grid-template-columns: minmax(300px, 1fr) minmax(0, auto);
+      grid-template-columns: minmax(0, 1fr) 600px;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
       margin-bottom: 16px;
     }
 
@@ -60,36 +60,33 @@
       height: 40px;
       display: inline-flex;
       align-items: center;
+      justify-content: flex-start;
       padding: 0 2px;
-      font-size: clamp(1.75rem, 2.35vw, 2.55rem);
-      font-weight: 820;
-      letter-spacing: -0.045em;
+      font-size: clamp(1.65rem, 2vw, 2.28rem);
+      font-weight: 850;
+      letter-spacing: -0.055em;
       line-height: 1;
       font-family: "Pretendard", "Inter", "Segoe UI", system-ui, sans-serif;
       font-variant-numeric: tabular-nums;
       font-feature-settings: "tnum" 1, "ss01" 1;
       color: var(--ink);
       white-space: nowrap;
-      min-width: 158px;
+      min-width: 126px;
       text-align: left;
     }
 
     .date-clock-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 0 0 auto;
-      min-width: 0;
+      display: contents;
     }
 
     .controls {
-      justify-self: end;
-      width: min(100%, 740px);
+      justify-self: stretch;
+      width: 100%;
       display: grid;
-      grid-template-columns: auto auto auto auto;
+      grid-template-columns: 126px 152px minmax(178px, 1fr) 92px;
       align-items: center;
-      justify-content: end;
-      gap: 9px;
+      justify-content: stretch;
+      gap: 8px;
       min-width: 0;
     }
 
@@ -109,16 +106,18 @@
     }
 
     input[type="date"] {
-      width: 158px;
-      flex: 0 0 158px;
+      width: 100%;
+      min-width: 0;
+      padding-left: 12px;
+      padding-right: 8px;
     }
 
     #reloadBtn {
-      flex: 0 0 auto;
+      width: 100%;
+      min-width: 0;
       white-space: nowrap;
-      min-width: 104px;
-      padding-left: 14px;
-      padding-right: 14px;
+      padding-left: 10px;
+      padding-right: 10px;
     }
 
     button {
@@ -135,26 +134,28 @@
     }
 
     .grade-tabs {
-      display: flex;
-      gap: 6px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
       padding: 4px;
       border: 1px solid var(--line);
       border-radius: 14px;
       background: white;
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-      flex: 0 0 auto;
+      width: 100%;
+      min-width: 0;
       white-space: nowrap;
     }
 
     .grade-btn {
       height: 32px;
-      padding: 0 11px;
+      padding: 0 8px;
       border-radius: 10px;
       background: transparent;
       color: var(--muted);
       border: 0;
       box-shadow: none;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
     }
 
     .grade-btn.active {
@@ -225,13 +226,18 @@
 
     .main-grid {
       display: grid;
-      grid-template-columns: minmax(0, 0.92fr) 440px;
+      grid-template-columns: minmax(0, 1fr) 600px;
       gap: 16px;
-      align-items: start;
+      align-items: stretch;
     }
 
     .left-panel, .side-panel {
       min-width: 0;
+    }
+
+    .left-panel {
+      display: flex;
+      flex-direction: column;
     }
 
     .table-wrap, .side-card {
@@ -240,6 +246,12 @@
       border-radius: 22px;
       box-shadow: var(--shadow);
       overflow: hidden;
+    }
+
+    .table-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .table-head {
@@ -268,6 +280,8 @@
     .table-scroll {
       width: 100%;
       overflow-x: auto;
+      flex: 1;
+      display: flex;
     }
 
     table {
@@ -276,6 +290,7 @@
       border-collapse: separate;
       border-spacing: 0;
       table-layout: fixed;
+      height: 100%;
     }
 
     thead th {
@@ -308,7 +323,7 @@
     tr:last-child th, tr:last-child td { border-bottom: 0; }
 
     td {
-      height: clamp(56px, 7.2vh, 76px);
+      height: clamp(58px, 7.4vh, 82px);
       background: white;
     }
 
@@ -340,11 +355,15 @@
 
     .side-panel {
       display: grid;
+      grid-template-rows: minmax(270px, 0.95fr) minmax(310px, 1.05fr);
       gap: 14px;
+      height: 100%;
     }
 
     .side-card {
       padding: 16px;
+      display: flex;
+      flex-direction: column;
     }
 
     .side-title {
@@ -372,12 +391,13 @@
     }
 
     .notice-view {
-      min-height: 118px;
+      flex: 1;
+      min-height: 178px;
       border-radius: 16px;
       background: #f8fafc;
       border: 1px solid var(--line);
-      padding: 14px;
-      font-size: clamp(1.05rem, 1.4vw, 1.32rem);
+      padding: 16px;
+      font-size: clamp(1.08rem, 1.35vw, 1.34rem);
       font-weight: 900;
       letter-spacing: -0.04em;
       line-height: 1.45;
@@ -392,8 +412,9 @@
 
     textarea {
       width: 100%;
-      min-height: 112px;
-      padding: 12px;
+      flex: 1;
+      min-height: 178px;
+      padding: 14px;
       resize: vertical;
       line-height: 1.5;
       font-weight: 700;
@@ -421,11 +442,12 @@
     }
 
     .meal-menu-card {
+      flex: 1;
       border-radius: 16px;
       background: #f8fafc;
       border: 1px solid var(--line);
-      padding: 14px;
-      font-size: clamp(1rem, 1.25vw, 1.18rem);
+      padding: 16px;
+      font-size: clamp(1rem, 1.18vw, 1.18rem);
       font-weight: 850;
       letter-spacing: -0.03em;
       line-height: 1.55;
@@ -434,6 +456,7 @@
     }
 
     .meal-empty, .loading {
+      flex: 1;
       padding: 30px 18px;
       text-align: center;
       color: var(--muted);
@@ -475,21 +498,31 @@
       font-size: 0.82rem;
     }
 
-    @media (max-width: 1180px) {
-      .main-grid { grid-template-columns: 1fr; }
-      .side-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 1280px) {
+      .top, .main-grid { grid-template-columns: 1fr; }
+      .controls {
+        justify-self: stretch;
+        grid-template-columns: 126px 152px minmax(178px, 1fr) 92px;
+      }
+      .side-panel {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: auto;
+      }
     }
 
     @media (max-width: 760px) {
       body { padding: 14px; }
       .top {
         align-items: stretch;
-        flex-direction: column;
       }
-      .controls { justify-content: stretch; }
-      select, button, input[type="date"] { flex: 1; min-width: 118px; }
+      .controls {
+        grid-template-columns: 1fr 1fr;
+      }
+      .date-clock-group { display: contents; }
+      select, button, input[type="date"] { min-width: 0; }
+      .header-clock { min-width: 0; }
       .grade-tabs { width: 100%; }
-      .grade-btn { flex: 1; }
+      #reloadBtn { width: 100%; }
       #refreshInfo { white-space: normal; text-align: right; }
       .status-card {
         align-items: flex-start;
