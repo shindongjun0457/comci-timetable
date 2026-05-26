@@ -128,11 +128,19 @@
       margin-bottom: clamp(8px, 1.2vh, 16px);
     }
 
+    .title-block {
+      min-width: 0;
+      display: flex;
+      align-items: baseline;
+      gap: clamp(18px, 3vw, 34px);
+    }
+
     .title-block h1 {
       margin: 0;
       font-size: clamp(1.55rem, 2.5vw, 2.25rem);
       letter-spacing: -0.04em;
       line-height: 1.15;
+      white-space: nowrap;
     }
 
     .header-clock {
@@ -141,7 +149,7 @@
       align-items: center;
       justify-content: flex-start;
       padding: 0 2px;
-      font-size: clamp(1.7rem, 2.05vw, 2.18rem);
+      font-size: clamp(1.65rem, 2.05vw, 2.18rem);
       font-weight: 850;
       letter-spacing: -0.055em;
       line-height: 1;
@@ -150,22 +158,18 @@
       font-feature-settings: "tnum" 1, "ss01" 1;
       color: var(--ink);
       white-space: nowrap;
-      min-width: 160px;
+      min-width: 158px;
       text-align: left;
-    }
-
-    .date-clock-group {
-      display: contents;
     }
 
     .controls {
       justify-self: stretch;
       width: 100%;
       display: grid;
-      grid-template-columns: 150px 136px minmax(180px, 1fr) 44px 84px;
+      grid-template-columns: 170px minmax(210px, 1fr) 44px 92px;
       align-items: center;
       justify-content: stretch;
-      gap: 6px;
+      gap: 8px;
       min-width: 0;
     }
 
@@ -556,10 +560,10 @@
       background: var(--soft);
       border: 1px solid var(--line);
       padding: 14px 16px;
-      font-size: var(--meal-font-size, clamp(1.18rem, 1.36vw, 1.42rem));
-      font-weight: 850;
-      letter-spacing: -0.03em;
-      line-height: 1.5;
+      font-size: var(--meal-font-size, clamp(1.12rem, 1.32vw, 1.42rem));
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.45;
       word-break: keep-all;
     }
 
@@ -580,10 +584,10 @@
       display: inline;
       margin-left: 8px;
       color: var(--muted);
-      font-size: calc(var(--meal-font-size, 1.25rem) * 0.68);
-      font-weight: 800;
+      font-size: calc(var(--meal-font-size, 1.25rem) * 0.72);
+      font-weight: 500;
       line-height: 1.35;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
       white-space: normal;
     }
 
@@ -648,9 +652,10 @@
 
     @media (max-width: 1280px) {
       .top, .main-grid { grid-template-columns: 1fr; }
+      .title-block { justify-content: space-between; }
       .controls {
         justify-self: stretch;
-        grid-template-columns: 150px 136px minmax(180px, 1fr) 44px 84px;
+        grid-template-columns: 170px minmax(210px, 1fr) 44px 92px;
       }
       .side-panel {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -664,10 +669,14 @@
       .top {
         align-items: stretch;
       }
+      .title-block {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+      }
       .controls {
         grid-template-columns: 1fr 1fr;
       }
-      .date-clock-group { display: contents; }
       select, button, input[type="date"] { min-width: 0; }
       .header-clock { min-width: 0; }
       .grade-tabs { width: 100%; }
@@ -688,13 +697,11 @@
     <header class="top">
       <div class="title-block">
         <h1>오현중학교 시간표</h1>
+        <div id="clockText" class="header-clock">--:--:--</div>
       </div>
 
       <div class="controls">
-        <div class="date-clock-group">
-          <div id="clockText" class="header-clock">--:--:--</div>
-          <input id="dateInput" type="date" aria-label="날짜 선택" />
-        </div>
+        <input id="dateInput" type="date" aria-label="날짜 선택" />
         <div class="grade-tabs" role="group" aria-label="학년 선택">
           <button class="grade-btn" type="button" data-grade="1">1학년</button>
           <button class="grade-btn" type="button" data-grade="2">2학년</button>
