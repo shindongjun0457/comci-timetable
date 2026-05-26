@@ -10,16 +10,23 @@ functions/
   api/
     timetable.js
     meal.js
+    notice.js
 README.md
 ```
 
-## 동작 구조
+## API 구조
 
 - `/api/timetable?date=YYYY-MM-DD`: 컴시간 서버에서 오현중학교 시간표 JSON을 가져옵니다.
 - `/api/meal?date=YYYY-MM-DD`: 나이스 급식식단정보 API에서 오현중학교 급식 메뉴를 가져옵니다.
-- 공지사항은 서버가 아니라 현재 브라우저의 `localStorage`에 저장됩니다.
-  - 같은 컴퓨터/같은 브라우저/같은 도메인에서만 유지됩니다.
-  - 다른 학년 교무실 컴퓨터에서는 각각 다른 공지사항을 사용할 수 있습니다.
+- `/api/notice?grade=1`: Cloudflare KV에서 학년별 공지사항을 가져오거나 저장합니다.
+
+공지사항은 이제 `localStorage`가 아니라 Cloudflare KV에 학년별로 저장됩니다.
+
+```txt
+notice:grade:1
+notice:grade:2
+notice:grade:3
+```
 
 ## Cloudflare Pages 설정
 
@@ -30,9 +37,7 @@ README.md
 
 ## NEIS 인증키 설정
 
-급식 메뉴를 불러오려면 Cloudflare Pages에 나이스 Open API 인증키를 환경변수로 넣어야 합니다.
-
-Cloudflare에서 다음 경로로 이동하세요.
+급식 메뉴를 불러오려면 Cloudflare Pages에 나이스 Open API 인증키를 Secret으로 넣어야 합니다.
 
 ```txt
 Workers & Pages
@@ -42,22 +47,82 @@ Workers & Pages
 → Add variable
 ```
 
-다음처럼 추가합니다.
-
 ```txt
 Variable name: NEIS_API_KEY
+Type: Secret
 Value: 발급받은 나이스 Open API 인증키
 Environment: Production
 ```
 
-저장 후 반드시 다시 배포하세요.
+## 공지사항 KV 설정
+
+Cloudflare에서 KV 저장소를 하나 만듭니다.
+
+```txt
+Workers & Pages
+→ KV
+→ Create namespace
+```
+
+추천 이름:
+
+```txt
+ohyun_timetable_notices
+```
+
+그다음 Pages 프로젝트에 KV를 연결합니다.
+
+```txt
+Workers & Pages
+→ comci-timetable
+→ Settings
+→ Functions
+→ KV namespace bindings
+→ Add binding
+```
+
+다음처럼 설정합니다.
+
+```txt
+Variable name: NOTICES
+KV namespace: ohyun_timetable_notices
+Environment: Production
+```
+
+`Variable name`은 반드시 `NOTICES`로 해야 합니다.
+
+## 공지사항 저장 비밀번호 설정
+
+공지사항 저장/비우기를 아무나 하지 못하게 하려면 Secret을 하나 더 추가합니다.
+
+```txt
+Workers & Pages
+→ comci-timetable
+→ Settings
+→ Variables and Secrets
+→ Add variable
+```
+
+```txt
+Variable name: NOTICE_ADMIN_KEY
+Type: Secret
+Value: 원하는 저장 비밀번호
+Environment: Production
+```
+
+이 값을 설정하면 화면에서 공지사항을 저장할 때 비밀번호 입력창이 뜹니다.
+
+## 다시 배포
+
+환경변수나 KV 바인딩을 추가한 뒤에는 다시 배포해야 합니다.
 
 ```txt
 Deployments
-→ Retry deployment 또는 GitHub에 아무 수정 후 push
+→ 최신 배포 오른쪽 ···
+→ Retry deployment 또는 Redeploy
 ```
 
-기존에 `NEIS_KEY`라는 이름으로 넣어둔 경우도 호환되지만, 권장 이름은 `NEIS_API_KEY`입니다.
+또는 GitHub에 파일을 다시 commit하면 자동 배포됩니다.
 
 ## 테스트 주소
 
@@ -65,17 +130,18 @@ Deployments
 
 ```txt
 https://도메인/api/meal?date=2026-05-27
+https://도메인/api/notice?grade=1
 ```
 
-정상이면 `ok: true`와 `menu` 배열이 표시됩니다.
+공지사항 API가 정상이라면 다음처럼 나옵니다.
 
+```json
+{"ok":true,"grade":"1","content":""}
+```
 
-## 급식 알레르기 표시
+## v21 변경
 
-나이스 급식 원문 DDISH_NM의 괄호 안 알레르기 번호를 메뉴명 옆 배지로 표시합니다.
-
-
-## v11 변경
-- 급식 메뉴의 알레르기 번호를 서버에서 추출해 프론트에서 이름으로 표시합니다.
-- 공지사항 영역 세로 크기를 줄였습니다.
-- 시간표 과목 글자 크기를 키웠습니다.
+- 공지사항 저장 방식을 브라우저 localStorage에서 Cloudflare KV로 변경했습니다.
+- 공지사항을 1학년, 2학년, 3학년별로 웹에 저장합니다.
+- 저장/비우기에는 `NOTICE_ADMIN_KEY` 비밀번호를 사용할 수 있습니다.
+- 공지사항 수정 입력창의 예시 문구를 삭제했습니다.

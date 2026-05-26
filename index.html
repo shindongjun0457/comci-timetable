@@ -652,7 +652,7 @@
             </div>
           </div>
           <div id="noticeView" class="notice-view notice-placeholder">공지사항을 입력하세요.</div>
-          <textarea id="noticeInput" aria-label="공지사항 입력" placeholder="예: 오늘 6교시 후 학년 협의회가 있습니다."></textarea>
+          <textarea id="noticeInput" aria-label="공지사항 입력" placeholder=""></textarea>
         </section>
 
         <section class="side-card">
@@ -674,7 +674,6 @@
 const CLASSES_PER_GRADE = 7;
 const PERIODS = 7;
 const WEEKDAY_KO = ["일", "월", "화", "수", "목", "금", "토"];
-const LOCAL_NOTICE_KEY = "ohyun-timetable-local-notice-v1";
 const ALLERGEN_MAP = {
   "1": "난류",
   "2": "우유",
@@ -702,7 +701,9 @@ const state = {
   date: "",
   data: null,
   updatedAt: null,
-  noticeEditing: false
+  noticeEditing: false,
+  noticeText: "",
+  noticeLoading: false
 };
 
 const $ = (id) => document.getElementById(id);
@@ -976,28 +977,82 @@ async function loadTimetable() {
   }
 }
 
-function getSavedNotice() {
+async function fetchNotice(grade) {
+  const res = await fetch(`/api/notice?grade=${encodeURIComponent(grade)}`, { cache: "no-store" });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`공지사항 API 오류 ${res.status}
+${text.slice(0, 400)}`);
+  return JSON.parse(text);
+}
+
+async function loadNotice() {
+  state.noticeLoading = true;
+  renderNotice();
+
   try {
-    return localStorage.getItem(LOCAL_NOTICE_KEY) || "";
+    const data = await fetchNotice(state.grade);
+    state.noticeText = data?.content || "";
   } catch (error) {
-    return "";
+    console.error(error);
+    state.noticeText = "";
+    showError("공지사항을 불러오지 못했습니다.
+" + (error?.message || error));
+  } finally {
+    state.noticeLoading = false;
+    renderNotice();
   }
 }
 
-function saveNotice(value) {
-  try {
-    localStorage.setItem(LOCAL_NOTICE_KEY, value);
-  } catch (error) {
-    showError("공지사항을 이 브라우저에 저장하지 못했습니다.\n" + (error?.message || error));
+function getNoticeAdminKey() {
+  const cached = sessionStorage.getItem("ohyun-notice-admin-key") || "";
+  if (cached) return cached;
+
+  const input = prompt("공지사항 저장 비밀번호를 입력하세요.");
+  if (!input) return "";
+
+  sessionStorage.setItem("ohyun-notice-admin-key", input);
+  return input;
+}
+
+async function saveNotice(value) {
+  const adminKey = getNoticeAdminKey();
+  if (!adminKey) return false;
+
+  const res = await fetch(`/api/notice?grade=${encodeURIComponent(state.grade)}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Notice-Key": adminKey
+    },
+    body: JSON.stringify({ content: value })
+  });
+
+  const text = await res.text();
+
+  if (res.status === 401 || res.status === 403) {
+    sessionStorage.removeItem("ohyun-notice-admin-key");
+    alert("공지사항 저장 비밀번호가 맞지 않습니다.");
+    return false;
   }
+
+  if (!res.ok) throw new Error(`공지사항 저장 오류 ${res.status}
+${text.slice(0, 400)}`);
+
+  const data = JSON.parse(text);
+  state.noticeText = data?.content || "";
+  return true;
+}
+
+async function clearNotice() {
+  return saveNotice("");
 }
 
 function renderNotice() {
-  const value = getSavedNotice();
+  const value = state.noticeText || "";
   const view = $("noticeView");
   const input = $("noticeInput");
 
-  input.value = value;
+  if (!state.noticeEditing) input.value = value;
 
   if (state.noticeEditing) {
     view.style.display = "none";
@@ -1008,8 +1063,8 @@ function renderNotice() {
     input.style.display = "none";
     view.style.display = "block";
     $("noticeEditBtn").textContent = "수정";
-    view.textContent = value || "공지사항을 입력하세요.";
-    view.classList.toggle("notice-placeholder", !value);
+    view.textContent = state.noticeLoading ? "공지사항을 불러오는 중입니다." : (value || "공지사항을 입력하세요.");
+    view.classList.toggle("notice-placeholder", state.noticeLoading || !value);
   }
 }
 
@@ -1029,9 +1084,11 @@ function updateGradeButtons() {
 }
 
 document.querySelectorAll(".grade-btn").forEach((button) => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
     state.grade = Number(button.dataset.grade);
+    state.noticeEditing = false;
     render();
+    await loadNotice();
   });
 });
 
@@ -1048,23 +1105,47 @@ $("noticeEditBtn").addEventListener("click", () => {
   renderNotice();
 });
 
-$("noticeSaveBtn").addEventListener("click", () => {
-  saveNotice($("noticeInput").value.trim());
-  state.noticeEditing = false;
-  renderNotice();
+$("noticeSaveBtn").addEventListener("click", async () => {
+  try {
+    const ok = await saveNotice($("noticeInput").value.trim());
+    if (ok) {
+      state.noticeEditing = false;
+      renderNotice();
+    }
+  } catch (error) {
+    console.error(error);
+    showError("공지사항을 저장하지 못했습니다.
+" + (error?.message || error));
+  }
 });
 
-$("noticeClearBtn").addEventListener("click", () => {
-  saveNotice("");
-  state.noticeEditing = false;
-  renderNotice();
+$("noticeClearBtn").addEventListener("click", async () => {
+  try {
+    const ok = await clearNotice();
+    if (ok) {
+      state.noticeEditing = false;
+      renderNotice();
+    }
+  } catch (error) {
+    console.error(error);
+    showError("공지사항을 비우지 못했습니다.
+" + (error?.message || error));
+  }
 });
 
-$("noticeInput").addEventListener("keydown", (e) => {
+$("noticeInput").addEventListener("keydown", async (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-    saveNotice($("noticeInput").value.trim());
-    state.noticeEditing = false;
-    renderNotice();
+    try {
+      const ok = await saveNotice($("noticeInput").value.trim());
+      if (ok) {
+        state.noticeEditing = false;
+        renderNotice();
+      }
+    } catch (error) {
+      console.error(error);
+      showError("공지사항을 저장하지 못했습니다.
+" + (error?.message || error));
+    }
   }
 });
 
@@ -1075,6 +1156,7 @@ $("noticeInput").addEventListener("keydown", (e) => {
   $("dateInput").value = state.date;
   setStatus(formatDateKST(state.date), "시간표를 준비 중입니다.", "준비 중");
   renderNotice();
+  await loadNotice();
   updateClock();
   setInterval(updateClock, 1000);
   await loadTimetable();
