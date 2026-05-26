@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>오현중학교 오늘 시간표</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --changed: #fff7ed;
+      --changed-line: #fb923c;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
+        linear-gradient(180deg, #f8fafc 0%, var(--bg) 100%);
+    }
+
+    body { padding: 22px; }
+
+    .app {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+    }
+
+    .title-block p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    select, button, input[type="date"] {
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 0 14px;
+      font: inherit;
+      font-weight: 700;
+      color: var(--ink);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    button {
+      cursor: pointer;
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+
+    button.secondary {
+      background: white;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+
+    .status-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+
+    .date-main {
+      font-size: 1.08rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .date-sub {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .badge {
+      white-space: nowrap;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: #1d4ed8;
+      padding: 8px 12px;
+      font-weight: 900;
+      font-size: 0.88rem;
+    }
+
+    .table-wrap {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 780px;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line);
+      height: 56px;
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    tbody th {
+      width: 92px;
+      background: #f9fafb;
+      color: #374151;
+      font-weight: 900;
+      border-right: 1px solid var(--line);
+    }
+
+    th, td {
+      text-align: center;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      padding: 0;
+    }
+
+    th:last-child, td:last-child { border-right: 0; }
+    tr:last-child th, tr:last-child td { border-bottom: 0; }
+
+    td {
+      height: clamp(62px, 9vh, 88px);
+      background: white;
+    }
+
+    td.changed {
+      background: var(--changed);
+      box-shadow: inset 0 0 0 2px var(--changed-line);
+    }
+
+    .cell {
+      min-height: 58px;
+      padding: 10px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.05rem, 2.1vw, 1.45rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      word-break: keep-all;
+      line-height: 1.15;
+    }
+
+    .class-head { background: #f8fafc; }
+    .period { font-size: 1rem; }
+
+    .empty {
+      color: #d1d5db;
+      font-weight: 700;
+    }
+
+    .loading {
+      padding: 42px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .error {
+      margin-top: 14px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      border-radius: 16px;
+      padding: 14px 16px;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      display: none;
+      white-space: pre-wrap;
+    }
+
+    .notice {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 18px;
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 14px; }
+      .top {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .controls { justify-content: stretch; }
+      select, button, input[type="date"] { flex: 1; min-width: 120px; }
+      .status-card {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .badge { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="title-block">
+        <h1>오현중학교 시간표</h1>
+        <p>컴시간알리미 학교 코드 46043 · 날짜/학년 선택 · 1반~7반 · 1교시~7교시</p>
+      </div>
+
+      <div class="controls">
+        <input id="dateInput" type="date" aria-label="날짜 선택" />
+        <button id="todayBtn" class="secondary" type="button">오늘</button>
+        <button id="tomorrowBtn" class="secondary" type="button">내일</button>
+        <select id="gradeSelect" aria-label="학년 선택">
+          <option value="1">1학년</option>
+          <option value="2">2학년</option>
+          <option value="3">3학년</option>
+        </select>
+        <button id="reloadBtn" type="button">새로고침</button>
+      </div>
+    </header>
+
+    <section class="status-card">
+      <div>
+        <div id="dateText" class="date-main">날짜 확인 중</div>
+        <div id="subText" class="date-sub">시간표를 불러오는 중입니다.</div>
+      </div>
+      <div id="statusBadge" class="badge">불러오는 중</div>
+    </section>
+
+    <section class="table-wrap">
+      <div class="table-scroll">
+        <table id="timetable" aria-label="시간표">
+          <tbody>
+            <tr>
+              <td class="loading">컴시간알리미 서버에서 시간표를 불러오고 있습니다.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div id="errorBox" class="error"></div>
+
+    <p class="notice">
+      이 페이지는 Cloudflare Pages Function의 <strong>/api/timetable</strong>을 통해 컴시간알리미 데이터를 읽어 표시합니다.
+      변경 시간표는 연한 주황색 테두리로 표시합니다.
+    </p>
+
+    <footer>© 2026 BirdieAlgorithm · djcom.kr</footer>
+  </main>
+
+<script>
+const CLASSES_PER_GRADE = 7;
+const PERIODS = 7;
+const WEEKDAY_KO = ["일", "월", "화", "수", "목", "금", "토"];
+
+const state = {
+  grade: 1,
+  date: "",
+  data: null,
+  updatedAt: null
+};
+
+const $ = (id) => document.getElementById(id);
+
+function getKstDate() {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  return new Date(utc + 9 * 60 * 60 * 1000);
+}
+
+function toDateInputValue(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function dateFromInput(value) {
+  return new Date(`${value}T00:00:00+09:00`);
+}
+
+function formatDateKST(value) {
+  const date = typeof value === "string" ? dateFromInput(value) : value;
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  const w = WEEKDAY_KO[date.getDay()];
+  return `${y}년 ${m}월 ${d}일 (${w})`;
+}
+
+function addDays(date, days) {
+  const copy = new Date(date);
+  copy.setDate(copy.getDate() + days);
+  return copy;
+}
+
+function setStatus(main, sub, badge) {
+  $("dateText").textContent = main;
+  $("subText").textContent = sub;
+  $("statusBadge").textContent = badge;
+}
+
+function showError(message) {
+  const box = $("errorBox");
+  box.style.display = "block";
+  box.textContent = message;
+}
+
+function clearError() {
+  const box = $("errorBox");
+  box.style.display = "none";
+  box.textContent = "";
+}
+
+function setLoading(message = "컴시간알리미 서버에서 시간표를 불러오고 있습니다.") {
+  $("timetable").innerHTML = `<tbody><tr><td class="loading">${escapeHtml(message)}</td></tr></tbody>`;
+}
+
+async function fetchTimetable(dateValue) {
+  const res = await fetch(`/api/timetable?date=${encodeURIComponent(dateValue)}`, {
+    cache: "no-store"
+  });
+
+  const text = await res.text();
+
+  if (!res.ok) {
+    throw new Error(`API 오류 ${res.status}\n${text.slice(0, 600)}`);
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    throw new Error("API 응답을 JSON으로 해석하지 못했습니다.\n" + text.slice(0, 600));
+  }
+}
+
+function decodeLessonCode(value, data) {
+  if (value === undefined || value === null || value === 0 || value === "0") {
+    return { subject: "", teacher: "", changed: false, raw: value };
+  }
+
+  const raw = String(value);
+  const changed = raw.startsWith(">");
+  const numeric = Number(raw.replace(">", ""));
+
+  if (!numeric) {
+    return { subject: "", teacher: "", changed, raw: value };
+  }
+
+  const subjectIndex = Math.floor(numeric / 1000);
+  const teacherIndex = numeric % 1000;
+
+  return {
+    subject: data["자료492"]?.[subjectIndex] || "",
+    teacher: data["자료446"]?.[teacherIndex] || "",
+    changed,
+    raw: value
+  };
+}
+
+function getDayArray(data, grade, classNo, dayIndex) {
+  const changedDay = data?.["자료147"]?.[grade]?.[classNo]?.[dayIndex];
+  const baseDay = data?.["자료481"]?.[grade]?.[classNo]?.[dayIndex];
+
+  if (
+    Array.isArray(changedDay) &&
+    changedDay.length > 1 &&
+    changedDay.slice(1).some((v) => v !== 0 && v !== "0")
+  ) {
+    return changedDay;
+  }
+
+  return baseDay;
+}
+
+function render() {
+  const grade = Number(state.grade);
+  const date = dateFromInput(state.date);
+  const dayIndex = date.getDay();
+
+  $("gradeSelect").value = String(grade);
+  $("dateInput").value = state.date;
+
+  if (!state.data) return;
+
+  const updated = state.updatedAt
+    ? state.updatedAt.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })
+    : "";
+
+  if (dayIndex === 0 || dayIndex === 6) {
+    setStatus(formatDateKST(state.date), `주말입니다. 해당 날짜 데이터가 없으면 빈칸으로 표시됩니다. 마지막 새로고침: ${updated}`, `${grade}학년`);
+  } else {
+    setStatus(formatDateKST(state.date), `마지막 새로고침: ${updated}`, `${grade}학년 시간표`);
+  }
+
+  let thead = `
+    <thead>
+      <tr>
+        <th class="period class-head">교시</th>
+        ${Array.from({ length: CLASSES_PER_GRADE }, (_, i) => `<th class="class-head">${i + 1}반</th>`).join("")}
+      </tr>
+    </thead>
+  `;
+
+  let tbody = "<tbody>";
+
+  for (let period = 1; period <= PERIODS; period++) {
+    tbody += `<tr><th class="period">${period}교시</th>`;
+
+    for (let classNo = 1; classNo <= CLASSES_PER_GRADE; classNo++) {
+      const dayArray = getDayArray(state.data, grade, classNo, dayIndex);
+      const lesson = decodeLessonCode(dayArray?.[period], state.data);
+      const subject = lesson.subject || "";
+
+      tbody += `
+        <td class="${lesson.changed ? "changed" : ""}" title="${escapeHtml(lesson.teacher || "")}">
+          <div class="cell ${subject ? "" : "empty"}">${escapeHtml(subject || "-")}</div>
+        </td>
+      `;
+    }
+
+    tbody += "</tr>";
+  }
+
+  tbody += "</tbody>";
+  $("timetable").innerHTML = thead + tbody;
+}
+
+async function loadTimetable() {
+  clearError();
+  setLoading();
+  $("reloadBtn").disabled = true;
+
+  try {
+    setStatus(formatDateKST(state.date), "내 사이트 API를 통해 컴시간 서버에 연결 중입니다.", "연결 중");
+    state.data = await fetchTimetable(state.date);
+    state.updatedAt = new Date();
+    render();
+  } catch (err) {
+    console.error(err);
+    showError("시간표를 불러오지 못했습니다.\n" + (err?.message || err));
+    setStatus(formatDateKST(state.date), "시간표 로딩 실패", "오류");
+  } finally {
+    $("reloadBtn").disabled = false;
+  }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+$("gradeSelect").addEventListener("change", (e) => {
+  state.grade = Number(e.target.value);
+  render();
+});
+
+$("dateInput").addEventListener("change", async (e) => {
+  state.date = e.target.value;
+  await loadTimetable();
+});
+
+$("todayBtn").addEventListener("click", async () => {
+  state.date = toDateInputValue(getKstDate());
+  $("dateInput").value = state.date;
+  await loadTimetable();
+});
+
+$("tomorrowBtn").addEventListener("click", async () => {
+  state.date = toDateInputValue(addDays(getKstDate(), 1));
+  $("dateInput").value = state.date;
+  await loadTimetable();
+});
+
+$("reloadBtn").addEventListener("click", loadTimetable);
+
+(async function init() {
+  state.grade = 1;
+  state.date = toDateInputValue(getKstDate());
+  $("gradeSelect").value = String(state.grade);
+  $("dateInput").value = state.date;
+  setStatus(formatDateKST(state.date), "시간표를 준비 중입니다.", "준비 중");
+  await loadTimetable();
+})();
+</script>
+</body>
+</html>
