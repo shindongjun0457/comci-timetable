@@ -29,14 +29,41 @@ function compactDate(value) {
   return value.replaceAll("-", "");
 }
 
-function cleanMealText(text = "") {
+function parseMealItems(text = "") {
   return String(text)
     .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/\([^)]*\)/g, "")
-    .replace(/\d+\./g, "")
     .split("\n")
     .map((line) => line.replace(/[•·]/g, "").trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((line) => {
+      const allergens = [];
+
+      line.replace(/\(([^)]*)\)/g, (_, inside) => {
+        const value = String(inside).trim();
+        if (/^[0-9.\s]+$/.test(value)) {
+          value
+            .split(".")
+            .map((code) => code.trim())
+            .filter((code) => /^\d+$/.test(code))
+            .forEach((code) => {
+              const n = Number(code);
+              if (n >= 1 && n <= 19 && !allergens.includes(String(n))) {
+                allergens.push(String(n));
+              }
+            });
+        }
+        return "";
+      });
+
+      const name = line
+        .replace(/\([^)]*\)/g, "")
+        .replace(/\d+\./g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      return { name, allergens };
+    })
+    .filter((item) => item.name);
 }
 
 export async function onRequestOptions() {
@@ -114,7 +141,7 @@ export async function onRequestGet(context) {
       date: dateParam,
       mealName: row.MMEAL_SC_NM || "급식",
       calories: row.CAL_INFO || "",
-      menu: cleanMealText(row.DDISH_NM || ""),
+      menu: parseMealItems(row.DDISH_NM || ""),
       raw: row
     });
   } catch (error) {
